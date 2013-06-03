@@ -4,7 +4,7 @@ from parsley import makeGrammar, ParseError
 
 
 grammar = (
-    """
+    r"""
     message = byte{4} compression o_str:msg_id (object+):objects
               -> (msg_id, objects)
 
@@ -23,7 +23,8 @@ grammar = (
     len_str = "\xFF\xFF\xFF\xFF" -> None
             | int4:l <byte{l}>:bs -> bs
 
-    o_ptr = int1:l <byte{l}>:bs -> none_or_hex(bs)
+    o_ptr = "\x01" null -> None
+          | int1:l <byte{l}>:bs -> int(bs, 16)
     o_tim = int1:l byte{l}:bs -> ascii_to_datetime(''.join(bs))
 
     o_htb = int1:l type:t1 type:t2 (hash_item(t1, t2){l}):items -> dict(items)
@@ -49,6 +50,7 @@ grammar = (
     int4 = byte{4}:bs -> bytes_to_int(bs)
     bool = byte:b -> bool(ord(b))
     byte = anything
+    null = anything:x ?(x == "\x00")
     """)
 
 
@@ -64,12 +66,6 @@ def bytes_to_int(bs):
 def ascii_to_datetime(seconds_str):
     seconds = int(seconds_str)
     return datetime(1970, 1, 1) + timedelta(seconds=seconds)
-
-
-def none_or_hex(bs):
-    if bs == '\x00':
-        return None
-    return int(bs, 16)
 
 
 def parse_hdata(grammar, path, keys, length):
@@ -99,7 +95,6 @@ def parse_hdata(grammar, path, keys, length):
 RelayParser = makeGrammar(grammar, {
     'bytes_to_int': bytes_to_int,
     'ascii_to_datetime': ascii_to_datetime,
-    'none_or_hex': none_or_hex,
     'parse_hdata': parse_hdata,
 }, name='RelayParser')
 
