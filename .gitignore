@@ -1,0 +1,6 @@
+/bin/
+/config.json
+/crash_report*
+/include/
+/lib/
+/man/
