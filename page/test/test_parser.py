@@ -54,7 +54,7 @@ def test_parser_object():
 
     # Pointers
     yield t, 'ptr\x01\x00', None
-    yield t, 'ptr\x091a2b3c4d5', 0x1a2b3c4d5
+    yield t, 'ptr\x091a2b3c4d5', '0x1a2b3c4d5'
 
     # Time. Seconds -> datetime object.
     yield t, 'tim\x0A1321993456', datetime(2011, 11, 22, 20, 24, 16)
@@ -138,12 +138,12 @@ def test_object_hdata_full():
         'keys': [('number', 'int'), ('full_name', 'str')],
         'values': [
             {
-                '_pointers': [('buffer', 0x12345)],
+                '_pointers': [('buffer', '0x12345')],
                 'number': 1,
                 'full_name': 'core.weechat',
             },
             {
-                '_pointers': [('buffer', 0x6789a)],
+                '_pointers': [('buffer', '0x6789a')],
                 'number': 2,
                 'full_name': 'irc.server.freenode',
             },
@@ -193,7 +193,7 @@ def test_weechat_sample_data():
             None,
             'buffer',
             None,
-            0x7fffd30a5778,
+            '0x7fffd30a5778',
             datetime(2011, 11, 22, 20, 24, 16),
             ['abc', 'de'],
             [123, 456, 789],

@@ -24,7 +24,7 @@ grammar = (
             | int4:l <byte{l}>:bs -> bs
 
     o_ptr = "\x01" null -> None
-          | int1:l <byte{l}>:bs -> int(bs, 16)
+          | int1:l <byte{l}>:bs -> '0x' + bs
     o_tim = int1:l byte{l}:bs -> ascii_to_datetime(''.join(bs))
 
     o_htb = type:t1 type:t2 int4:l (hash_item(t1, t2){l}):items -> dict(items)
