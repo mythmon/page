@@ -60,8 +60,8 @@ def test_parser_object():
     yield t, 'tim\x0A1321993456', datetime(2011, 11, 22, 20, 24, 16)
 
     # Hash Table.
-    yield t, 'htb\x02chrchrABCD', {'A': 'B', 'C': 'D'}
-    yield t, ('htb\x02intint'
+    yield t, 'htbchrchr' '\x00\x00\x00\x02' 'ABCD', {'A': 'B', 'C': 'D'}
+    yield t, ('htbintint' '\x00\x00\x00\x02'
               '\x00\x00\x00\x01' '\x00\x00\x00\x02'
               '\x00\x00\x00\x03' '\x00\x00\x00\x04'), {1: 2, 3: 4}
 
@@ -200,9 +200,17 @@ def test_weechat_sample_data():
         ])
 
 
-def test_weechat_sample_hdata():
-    """This is a real packet received from weechat."""
-    with open('page/test/hdata.bin') as hdata:
+def test_weechat_sample_nicklist():
+    """This is a real message received from weechat."""
+    with open('page/test/nicklist_hdata.bin') as hdata:
+        msg = RelayParser(hdata.read()).message()
+
+    with open('out', 'w') as f:
+        f.write(pformat(msg))
+
+def test_weechat_sample_private_message():
+    """This is a real message received from weechat."""
+    with open('page/test/private_hdata.bin') as hdata:
         msg = RelayParser(hdata.read()).message()
 
     with open('out', 'w') as f:

@@ -27,7 +27,7 @@ grammar = (
           | int1:l <byte{l}>:bs -> int(bs, 16)
     o_tim = int1:l byte{l}:bs -> ascii_to_datetime(''.join(bs))
 
-    o_htb = int1:l type:t1 type:t2 (hash_item(t1, t2){l}):items -> dict(items)
+    o_htb = type:t1 type:t2 int4:l (hash_item(t1, t2){l}):items -> dict(items)
     hash_item :t1 :t2 = typed_object(t1):k typed_object(t2):v -> (k, v)
 
     o_hda = hpath:path hkeys:keys int4:count
