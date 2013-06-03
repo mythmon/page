@@ -8,12 +8,13 @@ Eventually it should do things like watch for highlights and certain
 kinds of messages and show notifications.
 
 How do?
-=======
+-------
 
 ```sh
 git clone git@github.com:mythmon/page.git
 cd page
 virtualenv .
+. bin/activate
 pip install requirements.txt
 PYTHONPATH=. python page/client.py
 ```
