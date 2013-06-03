@@ -7,7 +7,7 @@ How do?
 =======
 
 ```sh
-git clone git@github.com:mythmon/page.git
+git clone git://github.com/mythmon/page.git
 cd page
 virtualenv .
 . bin/activate
