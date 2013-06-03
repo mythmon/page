@@ -22,7 +22,7 @@ config.json
 ```json
 {
   "host": "example.com",
-  "port": "7001",
+  "port": 7001,
   "password": "secrets"
 }
 ```
