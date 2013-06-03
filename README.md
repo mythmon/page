@@ -15,6 +15,6 @@ git clone git@github.com:mythmon/page.git
 cd page
 virtualenv .
 . bin/activate
-pip install requirements.txt
+pip install -r requirements.txt
 PYTHONPATH=. python page/client.py
 ```
