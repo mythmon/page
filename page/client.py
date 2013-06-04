@@ -34,7 +34,6 @@ class RelayProtocol(Protocol):
         while len(self._buffer) >= 4:
             # if there are enough bytes, pop a message from the buffer.
             expected_len = bytes_to_int(self._buffer[:4])
-            print 'have:', len(self._buffer), 'need:', expected_len
             if len(self._buffer) >= expected_len:
                 self._pop_message()
             else:
@@ -50,9 +49,7 @@ class RelayProtocol(Protocol):
         self._buffer = self._buffer[expected_len:]
 
         # Parse it
-        print 'parsing'
         msg_id, message = parse_message(to_parse)
-        print 'got', len(message)
 
         # process it
         if msg_id.startswith('_'):
@@ -112,7 +109,6 @@ class RelayProtocol(Protocol):
         else:
             name = val['local_variables']['name']
 
-        print 'new buffer', name
         self.weechat_buffers[pointer] = name
 
     def msg_sys_buffer_closing(self, msg):
