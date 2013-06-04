@@ -2,9 +2,12 @@
 Functions to display notifications to the user.
 """
 import os
+import shlex
 
 from twisted.internet import utils
 from twisted.python import log
+
+from page import config
 
 
 def _check(prog):
@@ -24,10 +27,11 @@ def _check(prog):
 
 def notify(message):
     log.msg(message)
+    args = shlex.split(config['command'])
+    bin = args.pop(0)
+    args[args.index('%m')] = message
 
-    bin = 'notify-send'
-    args = (message, )
     exit_code = utils.getProcessOutputAndValue(bin, args, os.environ)
-    exit_code.addBoth(_check('notify-send'))
+    exit_code.addBoth(_check(bin))
 
     return exit_code

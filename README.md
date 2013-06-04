@@ -23,6 +23,9 @@ config.json
 {
   "host": "example.com",
   "port": 7001,
-  "password": "secrets"
+  "password": "secrets",
+  "command": "notify-send %m"
 }
 ```
+
+`command` is `notify-send %m` by default. You can replace this with whatever command you want it to run when you receive a message. `%m` is replaced with the message that was received.
