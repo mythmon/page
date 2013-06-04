@@ -1,8 +1,7 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 from pprint import pformat
 
 from nose.tools import eq_
-from nose.plugins.skip import SkipTest
 
 from page.parser import bytes_to_int, RelayParser
 
@@ -207,6 +206,7 @@ def test_weechat_sample_nicklist():
 
     with open('out', 'w') as f:
         f.write(pformat(msg))
+
 
 def test_weechat_sample_private_message():
     """This is a real message received from weechat."""
