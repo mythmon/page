@@ -1,17 +1,13 @@
-import json
 import sys
 
 from twisted.internet import reactor
 from twisted.internet.protocol import Protocol, ClientFactory
 from twisted.python import log
 
+from page import config
 from page.notify import notify
 from page.parser import parse_message, bytes_to_int
 from page.utils import clean_formatting
-
-
-with open('config.json') as cf:
-    config = json.load(cf)
 
 
 class RelayProtocol(Protocol):
