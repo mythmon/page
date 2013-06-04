@@ -31,35 +31,43 @@ class RelayProtocol(Protocol):
 
         # If there are less than 4 bytes, we can't parse expected length
         # yet, so just chill.
-        if len(self._buffer) < 4:
-            return
-
-        expected_len = bytes_to_int(self._buffer[:4])
-
-        if len(self._buffer) >= expected_len:
-            # Pop the message from the buffer
-            to_parse = self._buffer[:expected_len]
-            self._buffer = self._buffer[expected_len:]
-
-            # Parse it
-            msg_id, message = parse_message(to_parse)
-
-            # process it
-            if msg_id.startswith('_'):
-                msg_id = 'sys' + msg_id
-
-            if msg_id is None:
-                msg_id = 'misc'
-
-            msg_id = 'msg_' + msg_id
-
-            try:
-                getattr(self, msg_id)(message)
-            except AttributeError as e:
-                log.err('Unknown message id: "%s"' % msg_id)
-                log.err(e)
+        while len(self._buffer) >= 4:
+            # if there are enough bytes, pop a message from the buffer.
+            expected_len = bytes_to_int(self._buffer[:4])
+            print 'have:', len(self._buffer), 'need:', expected_len
+            if len(self._buffer) >= expected_len:
+                self._pop_message()
+            else:
+                break
 
     # Helper methods
+
+    def _pop_message(self):
+        expected_len = bytes_to_int(self._buffer[:4])
+
+        # Pop the message from the buffer
+        to_parse = self._buffer[:expected_len]
+        self._buffer = self._buffer[expected_len:]
+
+        # Parse it
+        print 'parsing'
+        msg_id, message = parse_message(to_parse)
+        print 'got', len(message)
+
+        # process it
+        if msg_id.startswith('_'):
+            msg_id = 'sys' + msg_id
+
+        if msg_id is None:
+            msg_id = 'misc'
+
+        msg_id = 'msg_' + msg_id
+
+        try:
+            getattr(self, msg_id)(message)
+        except AttributeError as e:
+            log.err('Unknown message id: "%s"' % msg_id)
+            log.err(e)
 
     def end(self):
         self.transport.write('quit\n')
