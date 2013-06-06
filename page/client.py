@@ -144,6 +144,12 @@ class RelayProtocol(Protocol):
     def msg_sys_buffer_moved(self, msg):
         pass
 
+    def msg_sys_buffer_unmerged(self, msg):
+        pass
+
+    def msg_sys_buffer_type_changed(self, msg):
+        pass
+
 
 class RelayFactory(ClientFactory):
 
