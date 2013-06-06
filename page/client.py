@@ -123,6 +123,9 @@ class RelayProtocol(Protocol):
     def msg_sys_nicklist(self, msg):
         pass
 
+    def msg_sys_nicklist_diff(self, msg):
+        pass
+
     def msg_sys_buffer_localvar_added(self, msg):
         pass
 
