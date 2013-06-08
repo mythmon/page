@@ -20,9 +20,9 @@ def clean_formatting(message):
     if '\x1c' in clean:
         log.err('Unknown format character in "%r".' % clean)
     if '\x1a' in clean:
-	log.err('Unknown format character in "%r".' % clean)
+        log.err('Unknown format character in "%r".' % clean)
     if '\x1b' in clean:
-	log.err('Unknown format character in "%r".' % clean)
+        log.err('Unknown format character in "%r".' % clean)
     if '\x01' in clean:
         log.err('Unknown format character in "%r".' % clean)
 
