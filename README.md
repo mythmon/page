@@ -1,4 +1,4 @@
-Page is a small program to report to you the status of Weechat by
+Page is a small program to report to you the status of WeeChat by
 connecting to it via the relay protocol
 
 Right now it connects, subscribes (`sync`s) to all buffers, and sends notifications of highlights and private messages.
@@ -24,8 +24,11 @@ config.json
   "host": "example.com",
   "port": 7001,
   "password": "secrets",
-  "command": "notify-send %m"
+  "command": "notify-send %m",
+  "heartbeat": false
 }
 ```
 
 `command` is `notify-send %m` by default. You can replace this with whatever command you want it to run when you receive a message. `%m` is replaced with the message that was received.
+
+`heartbeat` will send a ping every minute to test the connection. This requires WeeChat 0.4.2-dev or newer. It defaults to `false`.

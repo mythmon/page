@@ -1,7 +1,8 @@
 import sys
+from datetime import datetime, timedelta
 
-from twisted.internet import reactor
-from twisted.internet.protocol import Protocol, ClientFactory
+from twisted.internet import reactor, task
+from twisted.internet.protocol import Protocol, ReconnectingClientFactory
 from twisted.python import log
 
 from page import config
@@ -14,6 +15,7 @@ class RelayProtocol(Protocol):
 
     def __init__(self, *args, **kwargs):
         self._buffer = ''
+        self.version = ''
         self.weechat_buffers = {}
         reactor.addSystemEventTrigger('before', 'shutdown', self.end)
 
@@ -25,6 +27,10 @@ class RelayProtocol(Protocol):
         self.transport.write('(buffer_list) hdata buffer:gui_buffers(*) '
                              'name\n')
         self.transport.write('sync\n')
+        self.transport.write('info version\n')
+        if config['heartbeat']:
+            self._heartbeat = task.LoopingCall(self._send_heartbeat)
+            self._heartbeat.start(60, now=False)
 
     def dataReceived(self, data):
         self._buffer += data
@@ -52,11 +58,11 @@ class RelayProtocol(Protocol):
         msg_id, message = parse_message(to_parse)
 
         # process it
-        if msg_id.startswith('_'):
-            msg_id = 'sys' + msg_id
-
         if msg_id is None:
             msg_id = 'misc'
+
+        if msg_id.startswith('_'):
+            msg_id = 'sys' + msg_id
 
         msg_id = 'msg_' + msg_id
 
@@ -77,6 +83,12 @@ class RelayProtocol(Protocol):
         private = 'notify_private' in line['tags_array']
 
         return displayed and message and (highlight or private)
+
+    def _send_heartbeat(self):
+        if self.version >= '0.4.2':
+            self.transport.write('ping\n')
+        else:
+            self.transport.write('test\n')
 
     # Weechat messages
 
@@ -118,6 +130,19 @@ class RelayProtocol(Protocol):
         self.transport.write('desync %s *\n' % pointer)
         del self.weechat_buffers[pointer]
 
+    def msg_misc(self, msg):
+        if msg[0]:
+            msg_type = msg[0][0]
+            # Not sure what other types of message this can have.
+            if msg_type == 'version':
+                # Split off -dev -rc -etc.
+                self.version = msg[0][1].split('-')[0]
+                return
+            elif msg[0] == 'A' and msg[1] == 123456:
+                # Likely a response to `test`, ignore it.
+                return
+        log.err('Got unknown msg_misc: "%s"' % msg)
+
     # Unused Weechat messages
 
     def msg_sys_nicklist(self, msg):
@@ -150,11 +175,24 @@ class RelayProtocol(Protocol):
     def msg_sys_buffer_type_changed(self, msg):
         pass
 
+    def msg_sys_pong(self, msg):
+        pass
 
-class RelayFactory(ClientFactory):
+
+class RelayFactory(ReconnectingClientFactory):
 
     def buildProtocol(self, addr):
+        self.resetDelay()
         return RelayProtocol()
+
+    def clientConnectionLost(self, connector, reason):
+        log.err('Lost connection.  Reason: %s' % reason)
+        ReconnectingClientFactory.clientConnectionLost(self, connector, reason)
+
+    def clientConnectionFailed(self, connector, reason):
+        log.err('Connection failed. Reason: %s' % reason)
+        ReconnectingClientFactory.clientConnectionFailed(self, connector,
+                                                         reason)
 
 
 def main():
