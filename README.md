@@ -31,4 +31,4 @@ config.json
 
 `command` is `notify-send %m` by default. You can replace this with whatever command you want it to run when you receive a message. `%m` is replaced with the message that was received.
 
-`heartbeat` will send a ping every minute to test the connection. This requires WeeChat 0.4.2-dev or newer. It defaults to `false`.
+`heartbeat` will send a ping every minute to test the connection. It defaults to `false`
