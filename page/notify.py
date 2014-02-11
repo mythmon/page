@@ -31,6 +31,7 @@ def notify(message):
     bin = args.pop(0)
     args[args.index('%m')] = message
 
+    log.msg(bin, args)
     exit_code = utils.getProcessOutputAndValue(bin, args, os.environ)
     exit_code.addBoth(_check(bin))
 

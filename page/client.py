@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 
 from twisted.internet import reactor, task
 from twisted.internet.protocol import Protocol, ReconnectingClientFactory
+from twisted.protocols.policies import TimeoutMixin
 from twisted.python import log
 
 from page import config
@@ -11,12 +12,13 @@ from page.parser import parse_message, bytes_to_int
 from page.utils import clean_formatting
 
 
-class RelayProtocol(Protocol):
+class RelayProtocol(Protocol, TimeoutMixin):
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self):
         self._buffer = ''
         self.version = ''
         self.weechat_buffers = {}
+        self.setTimeout(config['timeout'])
         reactor.addSystemEventTrigger('before', 'shutdown', self.end)
 
     # Twisted methods.
@@ -30,7 +32,7 @@ class RelayProtocol(Protocol):
         self.transport.write('info version\n')
         if config['heartbeat']:
             self._heartbeat = task.LoopingCall(self._send_heartbeat)
-            self._heartbeat.start(60, now=False)
+            self._heartbeat.start(config['timeout'] / 3)
 
     def dataReceived(self, data):
         self._buffer += data
@@ -69,8 +71,7 @@ class RelayProtocol(Protocol):
         try:
             getattr(self, msg_id)(message)
         except AttributeError as e:
-            log.err('Unknown message id: "%s"' % msg_id)
-            log.err(e)
+            log.err('Unknown message id: "%s". %s' % (msg_id, e))
 
     def end(self):
         self.transport.write('quit\n')
@@ -139,9 +140,13 @@ class RelayProtocol(Protocol):
                 self.version = msg[0][1].split('-')[0]
                 return
             elif msg[0] == 'A' and msg[1] == 123456:
-                # Likely a response to `test`, ignore it.
+                # Likely a response to "test". Treat like a heartbeat.
+                self.msg_sys_pong(msg)
                 return
-        log.err('Got unknown msg_misc: "%s"' % msg)
+        log.err('Got unknown msg_misc: "%r"' % (msg, ))
+
+    def msg_sys_pong(self, msg):
+        self.resetTimeout()
 
     # Unused Weechat messages
 
@@ -173,9 +178,6 @@ class RelayProtocol(Protocol):
         pass
 
     def msg_sys_buffer_type_changed(self, msg):
-        pass
-
-    def msg_sys_pong(self, msg):
         pass
 
 

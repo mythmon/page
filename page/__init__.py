@@ -3,7 +3,8 @@ import json
 
 config = {
     'command': 'notify-send %m',
-    'heartbeat': False
+    'heartbeat': False,
+    'timeout': 15,
 }
 
 with open('config.json') as cf:
