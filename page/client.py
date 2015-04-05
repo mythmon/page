@@ -183,18 +183,22 @@ class RelayProtocol(Protocol, TimeoutMixin):
 
 class RelayFactory(ReconnectingClientFactory):
 
+    maxDelay = 60
+    maxRetries = 30
+    noisy = True
+
     def buildProtocol(self, addr):
         self.resetDelay()
+        notify('Page - Connected')
         return RelayProtocol()
 
     def clientConnectionLost(self, connector, reason):
-        log.err('Lost connection.  Reason: %s' % reason)
+        notify('Page - Lost connection. Will retry.')
         ReconnectingClientFactory.clientConnectionLost(self, connector, reason)
 
     def clientConnectionFailed(self, connector, reason):
-        log.err('Connection failed. Reason: %s' % reason)
-        ReconnectingClientFactory.clientConnectionFailed(self, connector,
-                                                         reason)
+        notify('Page - Connection failed. Will retry.')
+        ReconnectingClientFactory.clientConnectionFailed(self, connector, reason)
 
 
 def main():

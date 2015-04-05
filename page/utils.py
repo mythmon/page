@@ -26,5 +26,4 @@ def clean_formatting(message):
     if '\x01' in clean:
         log.err('Unknown format character in "%r".' % clean)
 
-
     return clean
